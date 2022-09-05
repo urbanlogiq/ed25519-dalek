@@ -21,7 +21,7 @@ use curve25519_dalek::scalar::Scalar;
 
 use ed25519::signature::Verifier;
 
-pub use sha2::Sha512;
+pub use sha2::{Sha512, Digest as Sha2Digest};
 
 #[cfg(feature = "serde")]
 use serde::de::Error as SerdeError;

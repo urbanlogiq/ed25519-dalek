@@ -35,7 +35,7 @@ use rand::thread_rng;
 #[cfg(all(not(feature = "batch"), feature = "batch_deterministic"))]
 use rand_core;
 
-use sha2::Sha512;
+use sha2::{Sha512, Digest as Sha2Digest};
 
 use crate::errors::InternalError;
 use crate::errors::SignatureError;

@@ -13,14 +13,14 @@ use core::fmt::Debug;
 
 use curve25519_dalek::constants;
 use curve25519_dalek::digest::generic_array::typenum::U64;
-use curve25519_dalek::digest::Digest;
+use curve25519_dalek::digest::{Digest, Update};
 use curve25519_dalek::edwards::CompressedEdwardsY;
 use curve25519_dalek::scalar::Scalar;
 
 #[cfg(feature = "rand")]
 use rand::{CryptoRng, RngCore};
 
-use sha2::Sha512;
+use sha2::{Sha512};
 
 #[cfg(feature = "serde")]
 use serde::de::Error as SerdeError;
@@ -277,7 +277,7 @@ impl<'a> From<&'a SecretKey> for ExpandedSecretKey {
         let mut lower: [u8; 32] = [0u8; 32];
         let mut upper: [u8; 32] = [0u8; 32];
 
-        h.update(secret_key.as_bytes());
+        Digest::update(&mut h, secret_key.as_bytes());
         hash.copy_from_slice(h.finalize().as_slice());
 
         lower.copy_from_slice(&hash[00..32]);
@@ -403,16 +403,16 @@ impl ExpandedSecretKey {
         let s: Scalar;
         let k: Scalar;
 
-        h.update(&self.nonce);
-        h.update(&message);
+        Digest::update(&mut h, &self.nonce);
+        Digest::update(&mut h, &message);
 
         r = Scalar::from_hash(h);
         R = (&r * &constants::ED25519_BASEPOINT_TABLE).compress();
 
         h = Sha512::new();
-        h.update(R.as_bytes());
-        h.update(public_key.as_bytes());
-        h.update(&message);
+        Digest::update(&mut h, R.as_bytes());
+        Digest::update(&mut h, public_key.as_bytes());
+        Digest::update(&mut h, &message);
 
         k = Scalar::from_hash(h);
         s = &(&k * &self.key) + &r;

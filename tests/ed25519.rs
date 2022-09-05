@@ -28,6 +28,7 @@ use sha2::Sha512;
 
 #[cfg(test)]
 mod vectors {
+    use curve25519_dalek::digest::Update;
     use curve25519_dalek::{edwards::EdwardsPoint, scalar::Scalar};
     use ed25519::signature::Signature as _;
     use sha2::{digest::Digest, Sha512};
@@ -104,8 +105,8 @@ mod vectors {
         let mut prehash_for_signing: Sha512 = Sha512::default();
         let mut prehash_for_verifying: Sha512 = Sha512::default();
 
-        prehash_for_signing.update(&msg_bytes[..]);
-        prehash_for_verifying.update(&msg_bytes[..]);
+        Digest::update(&mut prehash_for_signing, &msg_bytes[..]);
+        Digest::update(&mut prehash_for_verifying, &msg_bytes[..]);
 
         let sig2: Signature = keypair.sign_prehashed(prehash_for_signing, None).unwrap();
 
